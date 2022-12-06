@@ -48,12 +48,7 @@ foreach(var stackInfoLine in stackInfo.Skip(1)) {
         if (stacks[i] is null) stacks[i] = new Stack<char>();
         var stackInfoIndex = i == 1 ? 1 : (i - 1) * 4 + 1;
         var crateId = stackInfoLine[stackInfoIndex];
-        // Console.WriteLine($"{(byte)crateId}");
-        if (crateId > 32)
-        {
-            stacks[i].Push(crateId);
-            // Console.WriteLine($"Read: {stackInfoIndex} Push: {crateId} to {i}");
-        }
+        if (crateId > 32) stacks[i].Push(crateId);
     }
 }
 
