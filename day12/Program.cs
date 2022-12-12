@@ -12,7 +12,9 @@ var lines = System.IO.File.ReadAllLines("input.txt");
 var grid = new int[lines[0].Length, lines.Length];
 
 
-Coord start = Coord.Null, end = Coord.Null;
+List<Coord> starts = new List<Coord>();
+
+Coord end = Coord.Null;
 
 
 int col = 0, row = 0;
@@ -20,7 +22,6 @@ foreach(var line in lines) {
     foreach(var pos in line.AsSpan()) {
         var height = (int)pos - 96;
         if (pos == 'S') {
-            start = new Coord(col, row);
             height = 1;
         } else if (pos == 'E') {
             end = new Coord(col, row);
@@ -29,6 +30,8 @@ foreach(var line in lines) {
         // Console.WriteLine($"{row},{col}: {height}");
         grid[col, row] = height;
 
+        if (height == 1)
+            starts.Add(new Coord(col, row));
         // Console.Write($" {height:00} ");
         col++;
     }
@@ -36,16 +39,6 @@ foreach(var line in lines) {
     row++;
     col = 0;
 }
-
-Console.WriteLine();
-Console.WriteLine();
-
-// for (row = 0; row < grid.GetLength(1); row++) {
-//     for (col = 0; col < grid.GetLength(0); col++) {
-//      Console.Write($" {grid[col, row]:00} ");   
-//     }
-//     Console.WriteLine();
-// }
 
 // starting at start, find path to end
 
@@ -78,29 +71,16 @@ Func<Coord, IEnumerable<Coord>> walkableNeighbours = (Coord a) =>
     return neighbours;
 };
 
-var path = Algorithms.BreadthFirst<Coord>(start, end, walkableNeighbours, Coord.Null);
+var shortestpath = 10000;
+foreach (var start in starts)
+{
+    var path = Algorithms.Dijkstra<Coord>(start, end, walkableNeighbours, neigbourCost, Coord.Null);
 
-Console.WriteLine($"Path length: {path.Last().Path.Count()}");
+    var pathlen = path.Last().Path.Count();
 
-// foreach (var info in path) {
+    shortestpath = pathlen > 0 && pathlen < shortestpath ? pathlen : shortestpath;
+    Console.WriteLine($"Path length: {path.Last().Path.Count()}");
 
-//     Console.WriteLine($"Path: {info.Visited.Count()}");
-// }
+}
 
-// for (row = 0; row < grid.GetLength(1); row++) {
-//     for (col = 0; col < grid.GetLength(0); col++) {
-//         if (end.Column == col && end.Row == row) {
-//             Console.Write($" EE ");
-//         }
-//         else if (start.Column == col && start.Row == row) {
-//             Console.Write($" SS ");
-//         }
-//         else if (path.Last().Path.Any(x => x.Column == col && x.Row == row)) {
-//             Console.Write($" ## ");
-//         } else
-//         {
-//             Console.Write($" {grid[col, row]:00} ");
-//         }
-//     }
-//     Console.WriteLine();
-// }
+Console.WriteLine($"Shortest path: {shortestpath}");
